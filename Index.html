@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>WATESXBUG V1</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+        body{
+            background:#1a0000;
+            min-height:100vh;
+            width:100%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:0;
+            position:relative;
+            overflow-y:auto
+        }
+        .snow{
+            position:fixed;
+            top:0;left:0;
+            width:100%;height:100%;
+            pointer-events:none;
+            z-index:1
+        }
+        .snow i{
+            position:absolute;
+            top:-15px;
+            width:8px;height:8px;
+            background:#c00;
+            border-radius:50%;
+            box-shadow:0 0 20px #f00;
+            animation:fall linear infinite
+        }
+        @keyframes fall{to{transform:translateY(100vh)}}
+        .page{
+            position:relative;
+            z-index:10;
+            width:100%;
+            min-height:100vh;
+            background:rgba(0,0,0,0.95);
+            border:6px solid #f00;
+            padding:60px 40px;
+            box-shadow:0 0 100px #f00 inset;
+            display:flex;
+            flex-direction:column
+        }
+        .page.hide{display:none}
+        .logo{
+            width:220px;height:220px;
+            margin:0 auto 40px;
+            border-radius:50%;
+            overflow:hidden;
+            border:8px solid #f00;
+            box-shadow:0 0 80px #f00
+        }
+        .logo img{
+            width:100%;height:100%;
+            object-fit:cover;
+            display:block
+        }
+        .logo-small{
+            width:90px;height:90px;
+            border-radius:50%;
+            overflow:hidden;
+            border:5px solid #f00;
+            box-shadow:0 0 50px #f00
+        }
+        .logo-small img{
+            width:100%;height:100%;
+            object-fit:cover
+        }
+        h2{
+            color:#faa;
+            text-align:center;
+            margin:30px 0;
+            text-shadow:0 0 20px #f00;
+            font-size:3rem
+        }
+        input{
+            width:100%;
+            padding:25px;
+            margin:20px 0;
+            background:#300;
+            border:4px solid #a44;
+            border-radius:70px;
+            color:#faa;
+            font-size:1.8rem;
+            outline:none
+        }
+        input:focus{border-color:#f00;box-shadow:0 0 50px #f00}
+        .btn{
+            width:100%;
+            padding:25px;
+            background:#a33;
+            border:none;
+            border-radius:70px;
+            color:#fff;
+            font-size:2rem;
+            font-weight:bold;
+            cursor:pointer;
+            margin:30px 0 15px;
+            border:4px solid #faa;
+            transition:0.2s
+        }
+        .btn:hover{background:#c55;transform:scale(1.02)}
+        .btn:disabled{opacity:0.5;cursor:not-allowed}
+        .popup{
+            position:fixed;
+            top:0;left:0;
+            width:100%;height:100%;
+            background:rgba(0,0,0,0.98);
+            display:none;
+            justify-content:center;
+            align-items:center;
+            z-index:1000
+        }
+        .popup-content{
+            background:#200;
+            border:8px solid #f00;
+            border-radius:80px;
+            padding:70px 50px;
+            text-align:center;
+            max-width:700px;
+            width:90%
+        }
+        .popup-logo{
+            width:180px;height:180px;
+            margin:0 auto 40px;
+            border-radius:50%;
+            overflow:hidden;
+            border:6px solid #f00
+        }
+        .popup-logo img{
+            width:100%;height:100%;
+            object-fit:cover
+        }
+        .popup-btn{
+            background:#a33;
+            border:none;
+            color:#fff;
+            padding:20px 60px;
+            border-radius:70px;
+            margin-top:40px;
+            cursor:pointer;
+            border:4px solid #faa;
+            font-size:1.8rem
+        }
+        .loader{
+            width:120px;height:120px;
+            border:12px solid #500;
+            border-top:12px solid #f00;
+            border-radius:50%;
+            margin:40px auto;
+            animation:spin 1s linear infinite
+        }
+        @keyframes spin{to{transform:rotate(360deg)}}
+        video{
+            width:100%;
+            border-radius:60px;
+            border:6px solid #f00;
+            margin:30px 0
+        }
+        .bug-menu{
+            background:#300;
+            border:4px solid #a44;
+            border-radius:60px;
+            padding:40px;
+            margin:40px 0;
+            display:none
+        }
+        .bug-menu.show{display:block}
+        .menu-item{
+            padding:20px 25px;
+            margin:10px 0;
+            background:#400;
+            border:4px solid #a55;
+            border-radius:60px;
+            color:#faa;
+            cursor:pointer;
+            transition:0.2s;
+            font-size:1.8rem
+        }
+        .menu-item:hover{background:#600;border-color:#f66}
+        .menu-item.selected{background:#a33;color:#fff;border-color:#faa}
+        .menu-item.disabled{opacity:0.5;pointer-events:none;background:#300}
+        .row{
+            display:flex;
+            align-items:center;
+            gap:30px;
+            margin-bottom:40px
+        }
+        .user-info{
+            color:#faa;
+            font-size:1.8rem
+        }
+        .menu-trigger{
+            background:#500;
+            border:4px solid #f66;
+            border-radius:70px;
+            padding:20px;
+            text-align:center;
+            color:#fff;
+            font-weight:bold;
+            cursor:pointer;
+            margin:30px 0;
+            font-size:2rem
+        }
+        .menu-trigger:hover{background:#700}
+        .text-center{text-align:center}
+    </style>
+</head>
+<body>
+    <div class="snow" id="snow"></div>
+    
+    <!-- HALAMAN LOGIN -->
+    <div class="page" id="loginPage">
+        <div class="logo">
+            <img src="wates.jpg" alt="logo" onerror="this.src='https://placehold.co/400x400/300/fff?text=WATES'">
+        </div>
+        <input type="text" id="username" placeholder="username">
+        <input type="password" id="password" placeholder="password">
+        <button class="btn" onclick="login()">LOGIN</button>
+    </div>
+    
+    <!-- HALAMAN LOADING VIDEO -->
+    <div class="page hide" id="loadingPage">
+        <h2>LOADING BUG...</h2>
+        <video id="bugVideo" autoplay muted playsinline>
+            <source src="bug.mp4" type="video/mp4">
+        </video>
+        <div class="text-center" style="color:#faa; font-size:2rem;">memuat bug...</div>
+    </div>
+    
+    <!-- HALAMAN BUG UTAMA -->
+    <div class="page hide" id="bugPage">
+        <div class="row">
+            <div class="logo-small">
+                <img src="wates.jpg" alt="logo" onerror="this.src='https://placehold.co/200x200/300/fff?text=W'">
+            </div>
+            <div class="user-info">
+                <div>username: <span id="displayUser">-</span></div>
+                <div>password: ***sensor***</div>
+            </div>
+        </div>
+        
+        <!-- KOTAK CAPSULE KONTOL.JPG -->
+        <div class="logo" style="width:300px; height:300px; margin:40px auto;">
+            <img src="kontol.jpg" alt="bug" onerror="this.src='https://placehold.co/600x600/500/fff?text=BUG'">
+        </div>
+        
+        <input type="text" id="targetNumber" placeholder="nomor target">
+        
+        <!-- TEXT MENU BUG -->
+        <div class="menu-trigger" onclick="toggleMenu()" id="menuTrigger">[ MENU BUG ]</div>
+        
+        <!-- MENU BUG -->
+        <div class="bug-menu" id="bugMenu">
+            <div class="menu-item" onclick="selectMenu(0)" id="menu0">crash UI</div>
+            <div class="menu-item" onclick="selectMenu(1)" id="menu1">delay invisible</div>
+            <div class="menu-item" onclick="selectMenu(2)" id="menu2">crash Andro</div>
+            <div class="menu-item" onclick="selectMenu(3)" id="menu3">fc IOS</div>
+            <div class="menu-item" onclick="selectMenu(4)" id="menu4">force close</div>
+            <div class="menu-item disabled" id="menu5">fc one msg (coming soon)</div>
+        </div>
+        
+        <button class="btn" onclick="prosesBug()" id="prosesBtn" disabled>LANJUTKAN</button>
+    </div>
+    
+    <!-- POPUP ERROR -->
+    <div class="popup" id="popupError">
+        <div class="popup-content">
+            <div class="popup-logo">
+                <img src="wates.jpg" alt="error" onerror="this.src='https://placehold.co/300x300/300/fff?text=X'">
+            </div>
+            <h2 style="color:#faa; font-size:3rem;">LOGIN GAGAL</h2>
+            <p style="color:#faa; margin:30px 0; font-size:2rem;">username/password salah</p>
+            <button class="popup-btn" onclick="closeError()">OK</button>
+        </div>
+    </div>
+    
+    <!-- POPUP LOADING KIRIM -->
+    <div class="popup" id="popupLoading">
+        <div class="popup-content">
+            <div class="popup-logo">
+                <img src="wates.jpg" alt="loading" onerror="this.src='https://placehold.co/300x300/300/fff?text=W'">
+            </div>
+            <div class="loader"></div>
+            <p style="color:#faa; margin:30px 0; font-size:2rem;" id="loadingText">mengirim bug...</p>
+        </div>
+    </div>
+    
+    <!-- POPUP SUKSES -->
+    <div class="popup" id="popupSuccess">
+        <div class="popup-content">
+            <div class="popup-logo">
+                <img src="wates.jpg" alt="success" onerror="this.src='https://placehold.co/300x300/300/fff?text=OK'">
+            </div>
+            <h2 style="color:#faa; font-size:3rem;">BUG TERKIRIM</h2>
+            <button class="popup-btn" onclick="closeSuccess()">OK</button>
+        </div>
+    </div>
+
+    <script>
+        // Snow merah fullscreen
+        for(let i=40;i--;){
+            let s=document.createElement('i')
+            s.style.left=Math.random()*100+'%'
+            s.style.animationDuration=Math.random()*3+2+'s'
+            s.style.width=s.style.height=Math.random()*12+4+'px'
+            document.getElementById('snow').appendChild(s)
+        }
+
+        let selectedMenu = -1
+        let currentUser = ''
+
+        function login(){
+            let user = document.getElementById('username').value
+            let pass = document.getElementById('password').value
+            if(user === 'user12345' && pass === 'pasword12345'){
+                currentUser = user
+                document.getElementById('loginPage').classList.add('hide')
+                document.getElementById('loadingPage').classList.remove('hide')
+                
+                let video = document.getElementById('bugVideo')
+                video.play().catch(e=>console.log('video error'))
+                
+                video.onended = function(){
+                    document.getElementById('loadingPage').classList.add('hide')
+                    document.getElementById('bugPage').classList.remove('hide')
+                    document.getElementById('displayUser').innerText = currentUser
+                }
+            } else {
+                document.getElementById('popupError').style.display = 'flex'
+            }
+        }
+
+        function closeError(){
+            document.getElementById('popupError').style.display = 'none'
+        }
+
+        function toggleMenu(){
+            document.getElementById('bugMenu').classList.toggle('show')
+        }
+
+        function selectMenu(idx){
+            for(let i=0;i<5;i++){
+                document.getElementById('menu'+i).classList.remove('selected')
+            }
+            document.getElementById('menu'+idx).classList.add('selected')
+            selectedMenu = idx
+            document.getElementById('prosesBtn').disabled = false
+        }
+
+        function prosesBug(){
+            let target = document.getElementById('targetNumber').value.trim()
+            if(!target){
+                alert('isi nomor target dulu')
+                return
+            }
+            if(selectedMenu === -1) return
+            
+            document.getElementById('popupLoading').style.display = 'flex'
+            
+            setTimeout(() => {
+                document.getElementById('popupLoading').style.display = 'none'
+                document.getElementById('popupSuccess').style.display = 'flex'
+            }, 5000)
+        }
+
+        function closeSuccess(){
+            document.getElementById('popupSuccess').style.display = 'none'
+        }
+
+        document.getElementById('bugVideo').addEventListener('error', function(){
+            this.parentElement.innerHTML += '<div style="color:#faa;padding:30px; font-size:2rem;">video bug.mp4 tidak ditemukan</div>'
+        })
+    </script>
+</body>
+  </html>
